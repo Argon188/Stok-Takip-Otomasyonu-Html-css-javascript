@@ -1,0 +1,152 @@
+class Urun {
+    constructor(adi, stokMiktari) {
+        this.adi = adi;  // Ürünün adı
+        this.stokMiktari = stokMiktari;  // Ürünün mevcut stok miktarı
+    }
+
+    urunEkle(miktar) {
+        this.stokMiktari += miktar;  // Stok miktarını belirtilen miktar kadar artırır
+        this.stokGuncelle();  // Güncellenen stok bilgisini kaydeder
+    }
+
+    urunCikar(miktar) {
+        if (this.stokMiktari >= miktar) {  // Stokta yeterli miktar varsa
+            this.stokMiktari -= miktar;  // Stok miktarını belirtilen miktar kadar azaltır
+            this.stokGuncelle();  // Güncellenen stok bilgisini kaydeder
+        } else {
+            alert("Yeterli stok yok!");  // Eğer yeterli stok yoksa uyarı verir
+        }
+    }
+
+    stokGuncelle() {
+        // Güncellenen stok bilgisini localStorage'a kaydeder
+        localStorage.setItem(this.adi, JSON.stringify(this.stokMiktari));
+    }
+
+    static urunSil(urunAdi) {
+        // Ürünü localStorage'tan siler
+        localStorage.removeItem(urunAdi);
+    }
+}
+
+class Stok {
+    constructor() {
+        this.urunler = this.yukle();  // Sayfa yüklenince mevcut stokları localStorage'dan alır
+    }
+
+    urunEkle(urun) {
+        this.urunler.push(urun);  // Yeni bir ürün ekler
+        urun.stokGuncelle();  // Ürünün stok bilgisini günceller
+    }
+
+    urunBul(urunAdi) {
+        return this.urunler.find(urun => urun.adi === urunAdi);  // Ürün adını arar ve bulursa ürünü döner
+    }
+
+    stokDurumunuGoruntule() {
+        return this.urunler;  // Mevcut stokları döner
+    }
+
+    yukle() {
+        const urunler = [];
+        for (let i = 0; i < localStorage.length; i++) {  // LocalStorage'dan her ürün için
+            let urunAdi = localStorage.key(i);  // Ürün adını alır
+            let urunStok = JSON.parse(localStorage.getItem(urunAdi));  // Ürünün stok bilgisini alır
+            urunler.push(new Urun(urunAdi, urunStok));  // Ürünü ekler
+        }
+        return urunler;
+    }
+}
+
+class Siparis {
+    constructor(siparisNumarasi, urunAdi, miktar) {
+        this.siparisNumarasi = siparisNumarasi;  // Siparişin benzersiz numarası
+        this.urunAdi = urunAdi;  // Sipariş edilen ürün adı
+        this.miktar = miktar;  // Sipariş edilen miktar
+    }
+}
+
+let stok = new Stok();  // Stok sınıfını başlatır
+let siparisListesi = [];  // Sipariş listesi başlangıçta boş
+
+function urunEkle() {
+    const urunAdi = document.getElementById("urunAdi").value;  // Kullanıcıdan alınan ürün adı
+    const urunMiktar = parseInt(document.getElementById("urunMiktar").value);  // Kullanıcıdan alınan ürün miktarı
+
+    if (urunAdi && urunMiktar > 0) {  // Eğer ürün adı ve miktarı geçerliyse
+        let urun = stok.urunBul(urunAdi);  // Ürünü stokta arar
+        if (urun) {
+            urun.urunEkle(urunMiktar);  // Ürün mevcutsa miktarı ekler
+        } else {
+            urun = new Urun(urunAdi, urunMiktar);  // Ürün yoksa yeni bir ürün oluşturur
+            stok.urunEkle(urun);  // Yeni ürünü stok listesine ekler
+        }
+        renderStokTablosu();  // Stok tablosunu yeniden render eder
+        document.getElementById("urunAdi").value = '';  // Ürün adı girişini temizler
+        document.getElementById("urunMiktar").value = '';  // Ürün miktarı girişini temizler
+    }
+}
+
+function renderStokTablosu() {
+    const stokTablosu = document.getElementById("stokTablosu").getElementsByTagName('tbody')[0];  // Stok tablosunun gövdesini alır
+    stokTablosu.innerHTML = '';  // Tabloyu temizler
+    stok.stokDurumunuGoruntule().forEach(urun => {  // Her ürünü döner
+        const row = stokTablosu.insertRow();  // Yeni bir satır ekler
+        row.insertCell(0).textContent = urun.adi;  // Ürün adını ekler
+        row.insertCell(1).textContent = urun.stokMiktari;  // Ürün stok miktarını ekler
+        const actionCell = row.insertCell(2);  // Aksiyon hücresini ekler
+
+        const btnGuncelle = document.createElement("button");  // Güncelleme butonu oluşturur
+        btnGuncelle.textContent = "Güncelle";  // Buton metnini "Güncelle" yapar
+        btnGuncelle.onclick = () => {  // Butona tıklandığında
+            const miktar = prompt("Güncellenecek miktarı girin:", 0);  // Kullanıcıdan yeni miktar alır
+            if (miktar) {
+                urun.urunEkle(parseInt(miktar));  // Ürünün stok miktarını günceller
+                renderStokTablosu();  // Stok tablosunu yeniden render eder
+            }
+        };
+        actionCell.appendChild(btnGuncelle);  // Güncelleme butonunu hücreye ekler
+
+        const btnSil = document.createElement("button");  // Silme butonu oluşturur
+        btnSil.textContent = "Sil";  // Buton metnini "Sil" yapar
+        btnSil.style.backgroundColor = "red";  // Butonun rengini kırmızı yapar
+        btnSil.style.marginLeft = "5px";  // Butona sola boşluk ekler
+        btnSil.onclick = () => {  // Butona tıklandığında
+            if (confirm("Bu ürünü silmek istediğinizden emin misiniz?")) {  // Silme işlemi için onay alır
+                Urun.urunSil(urun.adi);  // Ürünü localStorage'dan siler
+                renderStokTablosu();  // Stok tablosunu yeniden render eder
+            }
+        };
+        actionCell.appendChild(btnSil);  // Silme butonunu hücreye ekler
+    });
+}
+
+function siparisOlustur() {
+    const siparisUrunAdi = document.getElementById("siparisUrunAdi").value;  // Sipariş için ürün adı
+    const siparisMiktar = parseInt(document.getElementById("siparisMiktar").value);  // Sipariş için miktar
+
+    let urun = stok.urunBul(siparisUrunAdi);  // Ürünü stokta arar
+    if (urun && urun.stokMiktari >= siparisMiktar) {  // Eğer ürün var ve stok yeterli ise
+        urun.urunCikar(siparisMiktar);  // Stoktan belirtilen miktarı çıkarır
+        const siparis = new Siparis(Date.now(), siparisUrunAdi, siparisMiktar);  // Yeni siparişi oluşturur
+        siparisListesi.push(siparis);  // Siparişi sipariş listesine ekler
+        renderSiparisTablosu();  // Sipariş tablosunu render eder
+    } else {
+        alert("Ürün stokta yeterli miktarda yok!");  // Eğer stok yeterli değilse uyarı verir
+    }
+}
+
+function renderSiparisTablosu() {
+    const siparislerTablosu = document.getElementById("siparisler").getElementsByTagName('tbody')[0];  // Siparişler tablosunun gövdesini alır
+    siparislerTablosu.innerHTML = '';  // Tabloyu temizler
+    siparisListesi.forEach(siparis => {  // Her siparişi döner
+        const row = siparislerTablosu.insertRow();  // Yeni bir satır ekler
+        row.insertCell(0).textContent = siparis.siparisNumarasi;  // Sipariş numarasını ekler
+        row.insertCell(1).textContent = siparis.urunAdi;  // Sipariş edilen ürün adını ekler
+        row.insertCell(2).textContent = siparis.miktar;  // Sipariş miktarını ekler
+    });
+}
+
+window.onload = function() {
+    renderStokTablosu();  // Sayfa yüklendiğinde stok tablosunu render eder
+};

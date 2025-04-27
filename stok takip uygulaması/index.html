@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok Yönetimi Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f1f1;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            width: 100px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Flexbox düzeniyle yan yana yapalım */
+        .form-sections {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .form-sections .section {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Stok Yönetimi Sistemi</h1>
+
+    <div class="container">
+        <!-- Ürün Ekleme ve Sipariş Oluşturma Bölümleri -->
+        <div class="form-sections">
+            <!-- Ürün Ekleme Bölümü -->
+            <div class="section" id="urunEkleme">
+                <div class="section-title">Ürün Ekle</div>
+                <div class="form-group">
+                    <input type="text" id="urunAdi" placeholder="Ürün Adı" required>
+                    <input type="number" id="urunMiktar" placeholder="Miktar" required>
+                    <button onclick="urunEkle()">Ürün Ekle</button>
+                </div>
+            </div>
+
+            <!-- Sipariş Oluşturma Bölümü -->
+            <div class="section" id="siparisOlusturma">
+                <div class="section-title">Sipariş Oluştur</div>
+                <div class="form-group">
+                    <input type="text" id="siparisUrunAdi" placeholder="Sipariş Verilecek Ürün" required>
+                    <input type="number" id="siparisMiktar" placeholder="Sipariş Miktarı" required>
+                    <button onclick="siparisOlustur()">Sipariş Oluştur</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stok Durumu Tablosu -->
+        <div class="section">
+            <div class="section-title">Mevcut Stok Durumu</div>
+            <div class="table-container">
+                <table id="stokTablosu">
+                    <thead>
+                        <tr>
+                            <th>Ürün Adı</th>
+                            <th>Stok Miktarı</th>
+                            <th>Aksiyonlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Ürünler buraya dinamik olarak eklenecek -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Siparişler Tablosu -->
+        <div class="section">
+            <div class="section-title">Oluşturulan Siparişler</div>
+            <div class="table-container">
+                <table id="siparisler">
+                    <thead>
+                        <tr>
+                            <th>Sipariş Numarası</th>
+                            <th>Ürün Adı</th>
+                            <th>Miktar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Siparişler buraya dinamik olarak eklenecek -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
